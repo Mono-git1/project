@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { AuthGuard } from '../../common/guards/auth.guard';
@@ -19,5 +19,11 @@ export class AdminUsersController {
   @Post()
   create(@Body() payload: CreateAdminDto) {
     return this.adminUsersService.createAdmin(payload);
+  }
+
+  @ApiOperation({ summary: 'Adminni o\'chirish (DELETE /api/admin/admins/:id)' })
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.adminUsersService.removeAdmin(id);
   }
 }

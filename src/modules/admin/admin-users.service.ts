@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { Role } from '@prisma/client';
 import { PrismaService } from '../../core/database/prisma.service';
@@ -40,6 +40,29 @@ export class AdminUsersService {
         role: admin.role,
         created_at: admin.created_at,
       },
+    };
+  }
+  async removeAdmin(id: string) {
+    const admin = await this.prisma.user.findUnique({
+      where: { id },
+      include: { _count: { select: { createdMovies: true } } },
+    });
+
+    if (!admin || admin.role !== Role.ADMIN) {
+      throw new NotFoundException('Admin topilmadi!');
+    }
+
+    if (admin._count.createdMovies > 0) {
+      throw new ConflictException(
+        `Bu admin ${admin._count.createdMovies} ta kino qo'shgan - avval o'sha kinolarni boshqa adminga o'tkazing yoki o'chiring!`,
+      );
+    }
+
+    await this.prisma.user.delete({ where: { id } });
+
+    return {
+      success: true,
+      message: 'Admin muvaffaqiyatli o\'chirildi',
     };
   }
 }
