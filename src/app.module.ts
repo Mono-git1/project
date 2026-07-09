@@ -19,27 +19,21 @@ import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
-    // .env fayldagi o'zgaruvchilarni butun ilova bo'ylab global qiladi
     ConfigModule.forRoot({ isGlobal: true }),
-
-    // JWT tokenlarni yaratish/tekshirish uchun umumiy modul
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
     }),
 
-    // /src/uploads papkasidagi fayllarni (poster, video) statik http orqali ochib beradi
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'src', 'uploads'),
       serveRoot: '/uploads',
     }),
 
-    // Global (@Global) modullar - bir marta import qilinadi, hamma joyda ishlatish mumkin
     PrismaModule,
     JwtTokenModule,
     SeederModule,
 
-    // Funksional modullar (4-oy.md dagi endpointlar guruhlari bo'yicha)
     AuthModule,
     ProfileModule,
     SubscriptionsModule,

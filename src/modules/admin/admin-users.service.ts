@@ -6,7 +6,7 @@ import { CreateAdminDto } from './dto/create-admin.dto';
 
 @Injectable()
 export class AdminUsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
   async createAdmin(payload: CreateAdminDto) {
     const exists = await this.prisma.user.findFirst({
       where: {

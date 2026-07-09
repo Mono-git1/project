@@ -25,12 +25,7 @@ export class SubscriptionsService {
     };
   }
 
-  /**
-   * Foydalanuvchi tanlagan obuna rejasini sotib oladi.
-   * Bu yerda haqiqiy to'lov tizimi (Stripe/Payme/Click) o'rniga soddalashtirilgan
-   * simulyatsiya qilingan: to'lov darhol "completed" deb belgilanadi.
-   * Haqiqiy loyihada bu joyga tashqi to'lov provayderi bilan integratsiya qo'shiladi.
-   */
+ 
   async purchase(userId: string, payload: PurchaseSubscriptionDto) {
     const plan = await this.prisma.subscriptionPlan.findUnique({ where: { id: payload.plan_id } });
 
@@ -46,8 +41,6 @@ export class SubscriptionsService {
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + plan.duration_days);
 
-    // Tranzaksiya ichida obuna va to'lov yozuvlarini birgalikda yaratamiz -
-    // shu orqali ikkalasi ham yoki yaratiladi, yoki xato bo'lsa hech biri saqlanmaydi
     const result = await this.prisma.$transaction(async (tx) => {
       const subscription = await tx.userSubscription.create({
         data: {

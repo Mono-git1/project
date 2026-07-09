@@ -7,7 +7,6 @@ import { CreateReviewDto } from './dto/create-review.dto';
 export class ReviewsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Kinoga sharh va baho qo'shadi. Har bir foydalanuvchi bir kinoga faqat bitta sharh yoza oladi
   async create(userId: string, movieId: string, payload: CreateReviewDto) {
     const movie = await this.prisma.movie.findUnique({ where: { id: movieId } });
     if (!movie) {

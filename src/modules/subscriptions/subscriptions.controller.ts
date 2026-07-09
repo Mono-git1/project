@@ -18,7 +18,7 @@ export class SubscriptionsController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(AuthGuard) // Faqat tizimga kirgan foydalanuvchi obuna sotib ola oladi
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Obuna sotib olish (POST /api/subscription/purchase)' })
   @Post('purchase')
   purchase(@CurrentUser() user: JwtPayload, @Body() payload: PurchaseSubscriptionDto) {

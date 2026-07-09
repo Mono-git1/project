@@ -9,15 +9,10 @@ import type { JwtPayload } from '../../core/utils/jwt';
 export class MoviesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * Kinolar ro'yxatini sahifalash (pagination), qidiruv va filterlar bilan qaytaradi.
-   * Query parametrlar: page, limit, category (slug), search (title bo'yicha), subscription_type
-   */
   async findAll(query: MovieQueryDto) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
 
-    // Prisma "where" shartini dinamik ravishda quramiz - faqat kiritilgan filterlar qo'shiladi
     const where: Prisma.MovieWhereInput = {
       ...(query.subscription_type && { subscription_type: query.subscription_type }),
       ...(query.search && {
@@ -62,12 +57,6 @@ export class MoviesService {
     };
   }
 
-  /**
-   * Slug bo'yicha bitta kinoning to'liq ma'lumotini qaytaradi.
-   * - Har safar ko'rilganda view_count +1 oshadi
-   * - Agar kino "premium" bo'lsa va foydalanuvchida faol obuna bo'lmasa, video fayllar ko'rsatilmaydi
-   * - currentUser bo'lsa, "is_favorite" maydoni to'g'ri hisoblanadi (OptionalAuthGuard orqali keladi)
-   */
   async findBySlug(slug: string, currentUser?: JwtPayload) {
     const movie = await this.prisma.movie.findUnique({
       where: { slug },
@@ -81,13 +70,11 @@ export class MoviesService {
       throw new NotFoundException('Kino topilmadi!');
     }
 
-    // Ko'rishlar sonini oshiramiz (statistik maqsadda)
     await this.prisma.movie.update({
       where: { id: movie.id },
       data: { view_count: { increment: 1 } },
     });
 
-    // Sharhlar bo'yicha o'rtacha baho va sonini hisoblaymiz
     const reviewStats = await this.prisma.review.aggregate({
       where: { movie_id: movie.id },
       _avg: { rating: true },
@@ -98,7 +85,6 @@ export class MoviesService {
     let hasAccess = movie.subscription_type === 'FREE';
 
     if (currentUser) {
-      // Adminlar har doim to'liq ruxsatga ega
       if (currentUser.role === Role.ADMIN || currentUser.role === Role.SUPERADMIN) {
         hasAccess = true;
       }
@@ -137,7 +123,6 @@ export class MoviesService {
         view_count: movie.view_count,
         is_favorite: isFavorite,
         categories: movie.categories.map((c) => c.category.name),
-        // Agar ruxsat bo'lmasa, fayllar ro'yxati bo'sh qaytadi va foydalanuvchiga obuna kerakligi bildiriladi
         files: hasAccess
           ? movie.files.map((file) => ({
               quality: QUALITY_LABELS[file.quality],

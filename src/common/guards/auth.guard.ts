@@ -6,14 +6,10 @@ import {
 } from '@nestjs/common';
 import { GenerateToken } from '../../core/utils/jwt';
 
-/**
- * AuthGuard - har bir himoyalangan so'rovda JWT tokenni tekshiradi.
- * Token faqat "Authorization: Bearer <token>" header orqali olinadi.
- * Token to'g'ri bo'lsa, undan chiqqan {id, role} ma'lumoti req.user ga yoziladi.
- */
+
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly generateToken: GenerateToken) {}
+  constructor(private readonly generateToken: GenerateToken) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
